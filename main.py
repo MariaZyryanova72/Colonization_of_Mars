@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
@@ -42,6 +42,13 @@ def add_job_func(team_leader, job, work_size=None, collaborators=None, start_dat
     new_job.is_finished = is_finished
     session.add(new_job)
     session.commit()
+
+
+@app.route("/")
+def works_log():
+    session = db_session.create_session()
+    jobs = session.query(Jobs).all()
+    return render_template("works_log.html", jobs=jobs)
 
 
 @app.route("/add_user")
