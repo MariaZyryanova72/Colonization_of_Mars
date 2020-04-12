@@ -81,7 +81,7 @@ def reqister():
                                    form=form,
                                    message="Пароли не совпадают")
         session = db_session.create_session()
-        if session.query(User).filter(User.email == form.email.data).first():
+        if session.query(User).filter(User.email == form.login.data).first():
             return render_template('register.html', title='Register Form',
                                    form=form,
                                    message="Такой пользователь уже есть")
@@ -98,6 +98,7 @@ def reqister():
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
+        return "ok"
     return render_template('register.html', title='Register Form', form=form)
 
 
