@@ -3,6 +3,7 @@ from data import db_session
 from data.jobs import Jobs
 from data.users import User
 import datetime
+from registerform import RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -69,6 +70,35 @@ def add_job():
     add_job_func(team_leader=1, job="deployment of residential modules 1 and 2", work_size=15,
                  collaborators="2, 3", start_date=datetime.datetime.now(), is_finished=False)
     return "Добавлены в базу данных данные о работе"
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def reqister():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Register Form',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        session = db_session.create_session()
+        if session.query(User).filter(User.email == form.email.data).first():
+            return render_template('register.html', title='Register Form',
+                                   form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            name=form.name.data,
+            email=form.login.data,
+            position=form.position.data,
+            age=form.age.data,
+            surname=form.surname.data,
+            speciality=form.speciality.data,
+            address=form.address.data,
+            hashed_password=form.password.data,
+        )
+        user.set_password(form.password.data)
+        session.add(user)
+        session.commit()
+    return render_template('register.html', title='Register Form', form=form)
 
 
 if __name__ == '__main__':
