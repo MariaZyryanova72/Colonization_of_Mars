@@ -3,6 +3,8 @@ from data import db_session
 from data.jobs import Jobs
 from data.users import User
 import datetime
+
+from jobform import JobsForm
 from flask_login import LoginManager, login_user, logout_user, login_required
 
 from loginform import LoginForm
@@ -113,6 +115,26 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
+@app.route('/jobs',  methods=['GET', 'POST'])
+@login_required
+def add_jobs():
+    form = JobsForm()
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        jobs = Jobs()
+        jobs.title = form.title.data
+        jobs.team_leader = form.team_leader.data
+        jobs.work_size = form.work_size.data
+        jobs.collaborators = form.collaborators.data
+        jobs.is_finished = form.is_finished.data
+        current_user.news.append(jobs)
+        session.merge(current_user)
+        session.commit()
+        return redirect('/')
+    return render_template('job.html', title='Add job',
+                           form=form)
+
+  
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
