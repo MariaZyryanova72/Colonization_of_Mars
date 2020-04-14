@@ -3,10 +3,8 @@ from data import db_session
 from data.jobs import Jobs
 from data.users import User
 import datetime
-
 from jobform import JobsForm
-from flask_login import LoginManager, login_user, logout_user, login_required
-
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from loginform import LoginForm
 from registerform import RegisterForm
 
@@ -72,13 +70,6 @@ def add_user():
     return "4 пользователя добавлены в базу данных"
 
 
-@app.route("/add_job")
-def add_job():
-    add_job_func(team_leader=1, job="deployment of residential modules 1 and 2", work_size=15,
-                 collaborators="2, 3", start_date=datetime.datetime.now(), is_finished=False)
-    return "Добавлены в базу данных данные о работе"
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = RegisterForm()
@@ -134,7 +125,7 @@ def add_jobs():
     return render_template('job.html', title='Add job',
                            form=form)
 
-  
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
