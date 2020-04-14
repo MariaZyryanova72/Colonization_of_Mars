@@ -3,9 +3,12 @@ from data import db_session
 from data.jobs import Jobs
 from data.users import User
 import datetime
+from flask_login import LoginManager
 from registerform import RegisterForm
 
 app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
@@ -100,6 +103,12 @@ def reqister():
         session.commit()
         return "ok"
     return render_template('register.html', title='Register Form', form=form)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    session = db_session.create_session()
+    return session.query(User).get(user_id)
 
 
 if __name__ == '__main__':
