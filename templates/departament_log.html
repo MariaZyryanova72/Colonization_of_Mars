@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2 style="margin-top: 20px" class="text-center">List of Departaments</h2>
+    {% if current_user.is_authenticated %}
+        <a href="/" class="btn btn-secondary">Back to Jobs</a>
+    {% endif %}
+    {% for departament in departaments %}
+        <h4 style="margin-top: 30px">Departament # {{ departament.id }}</h4>
+        <table width="90%">
+            <thead>
+            <tr style="background-color: rgba(221,221,221,0.83)">
+                <th class="col">Title of departament</th>
+                <th class="col">Chief</th>
+                <th class="col">Members</th>
+                <th class="col">Departament Email</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr style="padding: 10px">
+                <td class="col" style="background-color: rgba(255,238,134,0.41)">{{ departament.title }}</td>
+                <td class="col" style="background-color:
+                    rgba(183,196,255,0.83)">{{ departament.user_chief.name}} {{ departament.user_chief.surname }}</td>
+                <td class="col" style="background-color:
+                    rgba(183,196,255,0.83)">{{ departament.members}}</td>
+                <td class="col" style="background-color: rgba(157,255,170,0.83)">{{ departament.email }}</td>
+            </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% endblock %}
