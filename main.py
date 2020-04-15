@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, request, abort
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
+from data.departments import Department
 from jobform import JobsForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from loginform import LoginForm
@@ -54,6 +55,13 @@ def works_log():
     session = db_session.create_session()
     jobs = session.query(Jobs).all()
     return render_template("works_log.html", jobs=jobs)
+
+
+@app.route("/departament")
+def departament_list():
+    session = db_session.create_session()
+    departaments = session.query(Department).all()
+    return render_template("departament.html", departaments=departaments)
 
 
 @app.route("/add_user")

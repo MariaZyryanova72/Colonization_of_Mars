@@ -10,5 +10,5 @@ class Department(SqlAlchemyBase):
     title = sqlalchemy.Column(sqlalchemy.String)
     chief = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     members = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
+    email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=True)
     user_chief = orm.relation("User")
