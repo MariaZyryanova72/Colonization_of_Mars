@@ -215,5 +215,25 @@ def delete_jobs(id):
     return redirect('/')
 
 
+@app.route('/departament/delete_departaments/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_departaments(id):
+    session = db_session.create_session()
+    departaments = session.query(Department).filter(Department.id == id)
+
+    if departaments:
+        departaments = session.query(Department).filter(Department.id == id,
+                                                        ((Department.user_chief == current_user) |
+                                                         (current_user.id == 1))).first()
+        if departaments:
+            session.delete(departaments)
+            session.commit()
+        else:
+            return "Вы не капитан и не создатель, значит не имеете доступ к департаменту"
+    else:
+        abort(404)
+    return redirect('/departament')
+
+
 if __name__ == '__main__':
     main()
