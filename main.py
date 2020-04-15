@@ -105,7 +105,7 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
-@app.route('/jobs',  methods=['GET', 'POST'])
+@app.route('/add_jobs',  methods=['GET', 'POST'])
 @login_required
 def add_jobs():
     form = JobsForm()
