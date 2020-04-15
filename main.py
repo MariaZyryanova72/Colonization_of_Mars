@@ -147,7 +147,7 @@ def logout():
     return redirect("/")
 
 
-@app.route('/jobs/<int:id>', methods=['GET', 'POST'])
+@app.route('/edit_jobs/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_jobs(id):
     form = JobsForm()
@@ -156,7 +156,7 @@ def edit_jobs(id):
         jobs = session.query(Jobs).filter(Jobs.id == id).first()
         if jobs:
             jobs = session.query(Jobs).filter(Jobs.id == id,
-                                              Jobs.user == current_user).first()
+                                              ((Jobs.user == current_user) | (current_user.id == 1))).first()
             if jobs:
                 form.title.data = jobs.job
                 form.team_leader.data = jobs.team_leader
@@ -172,7 +172,7 @@ def edit_jobs(id):
         jobs = session.query(Jobs).filter(Jobs.id == id).first()
         if jobs:
             jobs = session.query(Jobs).filter(Jobs.id == id,
-                                              Jobs.user == current_user).first()
+                                              ((Jobs.user == current_user) | (current_user.id == 1))).first()
             if jobs:
                 jobs.title = form.title.data
                 jobs.team_leader = form.team_leader.data
@@ -186,6 +186,25 @@ def edit_jobs(id):
         else:
             abort(404)
     return render_template('job.html', title='Редактирование новости', form=form)
+
+
+@app.route('/delete_jobs/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_jobs(id):
+    session = db_session.create_session()
+    jobs = session.query(Jobs).filter(Jobs.id == id)
+
+    if jobs:
+        jobs = session.query(Jobs).filter(Jobs.id == id,
+                                          ((Jobs.user == current_user) | (current_user.id == 1))).first()
+        if jobs:
+            session.delete(jobs)
+            session.commit()
+        else:
+            return "Вы не капитан и не создатель, значит не имеете доступ к работе"
+    else:
+        abort(404)
+    return redirect('/')
 
 
 if __name__ == '__main__':
