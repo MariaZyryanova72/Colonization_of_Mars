@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2 class="text-center">Works log</h2>
+    <h2 style="margin-top: 20px" class="text-center">Works log</h2>
+    {% if current_user.is_authenticated %}
+        <a href="news" class="btn btn-secondary">Add job</a>
+    {% endif %}
     {% for job in jobs %}
         <h4 style="margin-top: 30px">Action # {{ job.id }}</h4>
         <table width="90%">
@@ -32,5 +35,11 @@
                 </tr>
             </tbody>
         </table>
+        {% if current_user.is_authenticated and current_user == job.user %}
+            <div style="margin-top: 20px">
+                <a href="/news/{{ job.id }}" class="btn btn-warning">Edit Job</a>
+                <a href="/news_delete/{{ job.id }}" class="btn btn-danger">Delete job</a>
+            </div>
+        {% endif %}
     {% endfor %}
 {% endblock %}
