@@ -4,6 +4,7 @@ from data.jobs import Jobs
 from data.users import User
 from data.departments import Department
 from jobform import JobsForm
+from departamenform import DepartamentsForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from loginform import LoginForm
 from registerform import RegisterForm
@@ -61,7 +62,7 @@ def works_log():
 def departament_list():
     session = db_session.create_session()
     departaments = session.query(Department).all()
-    return render_template("departament.html", departaments=departaments)
+    return render_template("departament_log.html", departaments=departaments)
 
 
 @app.route("/add_user")
@@ -193,7 +194,7 @@ def edit_jobs(id):
                 return "Вы не капитан и не создатель, значит не имеете доступ к работе"
         else:
             abort(404)
-    return render_template('job.html', title='Редактирование новости', form=form)
+    return render_template('job.html', title='Редактирование работы', form=form)
 
 
 @app.route('/delete_jobs/<int:id>', methods=['GET', 'POST'])
@@ -213,6 +214,47 @@ def delete_jobs(id):
     else:
         abort(404)
     return redirect('/')
+
+
+@app.route('/departament/edit_departament/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_departament(id):
+    form = DepartamentsForm()
+    if request.method == "GET":
+        session = db_session.create_session()
+        departament = session.query(Department).filter(Department.id == id).first()
+        if departament:
+            departament = session.query(Department).filter(Department.id == id,
+                                                           ((Department.user_chief == current_user) |
+                                                            (current_user.id == 1))).first()
+            if departament:
+                form.title.data = departament.title
+                form.chief.data = departament.chief
+                form.members.data = departament.members
+                form.email.data = departament.email
+            else:
+                return "Вы не капитан и не создатель, значит не имеете доступ к департаменту"
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        departament = session.query(Department).filter(Department.id == id).first()
+        if departament:
+            departament = session.query(Department).filter(Department.id == id,
+                                                           ((Department.user_chief == current_user) |
+                                                            (current_user.id == 1))).first()
+            if departament:
+                departament.title = form.title.data
+                departament.chief = form.chief.data
+                departament.members = form.members.data
+                departament.email = form.email.data
+                session.commit()
+                return redirect('/departament')
+            else:
+                return "Вы не капитан и не создатель, значит не имеете доступ к департаменту"
+        else:
+            abort(404)
+    return render_template('departament.html', title='Редактирование департамента', form=form)
 
 
 if __name__ == '__main__':
