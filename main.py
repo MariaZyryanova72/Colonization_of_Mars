@@ -256,6 +256,26 @@ def edit_departament(id):
             abort(404)
     return render_template('departament.html', title='Редактирование департамента', form=form)
 
+  
+@app.route('/departament/delete_departament/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_departament(id):
+    session = db_session.create_session()
+    departament = session.query(Department).filter(Department.id == id)
+
+    if departament:
+        departament = session.query(Department).filter(Department.id == id,
+                                                        ((Department.user_chief == current_user) |
+                                                         (current_user.id == 1))).first()
+        if departament:
+            session.delete(departament)
+            session.commit()
+        else:
+            return "Вы не капитан и не создатель, значит не имеете доступ к департаменту"
+    else:
+        abort(404)
+    return redirect('/departament')
+
 
 if __name__ == '__main__':
     main()
