@@ -1,8 +1,7 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request, abort
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
-import datetime
 from jobform import JobsForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from loginform import LoginForm
@@ -113,12 +112,12 @@ def add_jobs():
     if form.validate_on_submit():
         session = db_session.create_session()
         jobs = Jobs()
-        jobs.title = form.title.data
+        jobs.job = form.title.data
         jobs.team_leader = form.team_leader.data
         jobs.work_size = form.work_size.data
         jobs.collaborators = form.collaborators.data
         jobs.is_finished = form.is_finished.data
-        current_user.news.append(jobs)
+        current_user.jobs.append(jobs)
         session.merge(current_user)
         session.commit()
         return redirect('/')
@@ -146,6 +145,47 @@ def login():
 def logout():
     logout_user()
     return redirect("/")
+
+
+@app.route('/jobs/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_jobs(id):
+    form = JobsForm()
+    if request.method == "GET":
+        session = db_session.create_session()
+        jobs = session.query(Jobs).filter(Jobs.id == id).first()
+        if jobs:
+            jobs = session.query(Jobs).filter(Jobs.id == id,
+                                              Jobs.user == current_user).first()
+            if jobs:
+                form.title.data = jobs.job
+                form.team_leader.data = jobs.team_leader
+                form.work_size.data = jobs.work_size
+                form.collaborators.data = jobs.collaborators
+                form.is_finished.data = jobs.is_finished
+            else:
+                return "Вы не капитан и не создатель, значит не имеете доступ к работе"
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        jobs = session.query(Jobs).filter(Jobs.id == id).first()
+        if jobs:
+            jobs = session.query(Jobs).filter(Jobs.id == id,
+                                              Jobs.user == current_user).first()
+            if jobs:
+                jobs.title = form.title.data
+                jobs.team_leader = form.team_leader.data
+                jobs.work_size = form.work_size.data
+                jobs.collaborators = form.collaborators.data
+                jobs.is_finished = form.is_finished.data
+                session.commit()
+                return redirect('/')
+            else:
+                return "Вы не капитан и не создатель, значит не имеете доступ к работе"
+        else:
+            abort(404)
+    return render_template('job.html', title='Редактирование новости', form=form)
 
 
 if __name__ == '__main__':
