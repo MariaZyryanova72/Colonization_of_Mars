@@ -62,6 +62,7 @@ def works_log():
 def departament_list():
     session = db_session.create_session()
     departaments = session.query(Department).all()
+    print(111)
     return render_template("departament_log.html", departaments=departaments)
 
 
@@ -265,8 +266,8 @@ def delete_departament(id):
 
     if departament:
         departament = session.query(Department).filter(Department.id == id,
-                                                        ((Department.user_chief == current_user) |
-                                                         (current_user.id == 1))).first()
+                                                       ((Department.user_chief == current_user) |
+                                                        (current_user.id == 1))).first()
         if departament:
             session.delete(departament)
             session.commit()
@@ -275,6 +276,25 @@ def delete_departament(id):
     else:
         abort(404)
     return redirect('/departament')
+
+
+@app.route('/departament/add_departament',  methods=['GET', 'POST'])
+@login_required
+def add_departament():
+    form = DepartamentsForm()
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        departament = Department()
+        departament.title = form.title.data
+        departament.chief = form.chief.data
+        departament.members = form.members.data
+        departament.email = form.email.data
+        current_user.jobs.append(departament)
+        session.merge(current_user)
+        session.commit()
+        return redirect('/departament')
+    return render_template('departament.html', title='Add Departament',
+                           form=form)
 
 
 if __name__ == '__main__':
