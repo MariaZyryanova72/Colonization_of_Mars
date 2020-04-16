@@ -38,7 +38,6 @@ def get_one_users(users_id):
 
 @blueprint.route('/api/users', methods=['POST'])
 def create_users():
-    print(7777)
     if not request.json:
         return jsonify({'error': 'Empty request'})
     elif 'name' not in request.json:
