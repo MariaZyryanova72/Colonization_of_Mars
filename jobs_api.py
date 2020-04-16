@@ -6,7 +6,7 @@ from data.jobs import Jobs
 blueprint = flask.Blueprint('jobs_api', __name__, template_folder='templates')
 
 
-@blueprint.route('/api/jobs')
+@blueprint.route('/api/jobs',  methods=['GET'])
 def get_jobs():
     session = db_session.create_session()
     jobs = session.query(Jobs).all()
@@ -39,22 +39,19 @@ def get_one_jobs(jobs_id):
 @blueprint.route('/api/jobs', methods=['POST'])
 def create_jobs():
     if not request.json:
-        return jsonify({'error': 'Empty request'})
+        return jsonify({'error': 'Empty request1'})
     elif not all(key in request.json for key in
-                 ['team_leader', 'job', 'work_size',
-                  'collaborators', 'start_date', 'end_date',
-                  'is_finished', 'user.name']):
+                 ['team_leader', 'job']):
         return jsonify({'error': 'Bad request'})
     session = db_session.create_session()
     jobs = Jobs(
         team_leader=request.json['team_leader'],
         job=request.json['job'],
-        work_size=request.json['work_size'],
-        collaborators=request.json['collaborators'],
-        start_date=request.json['start_date'],
-        end_date=request.json['end_date'],
-        is_finished=request.json['is_finished']
+        work_size=request.json['work_size'] if 'work_size' in request.json else None,
+        collaborators=request.json['collaborators'] if 'collaborators' in request.json else None,
+        is_finished=request.json['is_finished'] if 'is_finished' in request.json else None
     )
     session.add(jobs)
     session.commit()
     return jsonify({'success': 'OK'})
+
