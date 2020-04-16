@@ -1,5 +1,5 @@
 import flask
-from flask import jsonify
+from flask import jsonify, request
 from data import db_session
 from data.users import User
 
@@ -34,3 +34,27 @@ def get_one_users(users_id):
                                        'email', 'hashed_password', 'modified_date'))
         }
     )
+
+
+@blueprint.route('/api/users', methods=['POST'])
+def create_users():
+    print(7777)
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    elif 'name' not in request.json:
+        return jsonify({'error': 'Bad request'})
+    session = db_session.create_session()
+    user = User(
+        surname=request.json['surname'] if 'surname' in request.json else None,
+        name=request.json['name'],
+        age=request.json['age'] if 'age' in request.json else None,
+        position=request.json['position'] if 'position' in request.json else None,
+        speciality=request.json['speciality'] if 'speciality' in request.json else None,
+        address=request.json['address'] if 'address' in request.json else None,
+        email=request.json['email'] if 'email' in request.json else None,
+        hashed_password=request.json['hashed_password'] if 'hashed_password' in request.json else None,
+        modified_date=request.json['modified_date'] if 'modified_date' in request.json else None
+    )
+    session.add(user)
+    session.commit()
+    return jsonify({'success': 'OK'})
