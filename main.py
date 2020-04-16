@@ -3,6 +3,7 @@ from data import db_session
 from data.jobs import Jobs
 from data.users import User
 from data.departments import Department
+import jobs_api
 from jobform import JobsForm
 from departamenform import DepartamentsForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -17,6 +18,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 def main():
     db_session.global_init("db/mars.sqlite")
+    app.register_blueprint(jobs_api.blueprint)
     app.run()
 
 
@@ -62,7 +64,6 @@ def works_log():
 def departament_list():
     session = db_session.create_session()
     departaments = session.query(Department).all()
-    print(111)
     return render_template("departament_log.html", departaments=departaments)
 
 
