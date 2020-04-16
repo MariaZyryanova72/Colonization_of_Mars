@@ -53,7 +53,6 @@ def create_users():
         address=request.json['address'] if 'address' in request.json else None,
         email=request.json['email'] if 'email' in request.json else None,
         hashed_password=request.json['hashed_password'] if 'hashed_password' in request.json else None,
-        modified_date=request.json['modified_date'] if 'modified_date' in request.json else None
     )
     session.add(user)
     session.commit()
@@ -61,11 +60,30 @@ def create_users():
 
 
 @blueprint.route('/api/users/<int:users_id>', methods=['DELETE'])
-def delete_news(users_id):
+def delete_users(users_id):
     session = db_session.create_session()
     user = session.query(User).get(users_id)
     if not user:
         return jsonify({'error': 'Not found'})
     session.delete(user)
+    session.commit()
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/users/<int:users_id>', methods=['POST'])
+def edit_users(users_id):
+    session = db_session.create_session()
+    user = session.query(User).get(users_id)
+    if not user:
+        return jsonify({'error': 'Not found'})
+    user.surname = request.json['surname'] if 'surname' in request.json else user.surname
+    user.name = request.json['name'] if 'name' in request.json else user.name
+    user.age = request.json['age'] if 'age' in request.json else user.age
+    user.position = request.json['position'] if 'position' in request.json else user.position
+    user.speciality = request.json['speciality'] if 'speciality' in request.json else user.speciality
+    user.address = request.json['address'] if 'address' in request.json else user.address
+    user.email = request.json['email'] if 'email' in request.json else user.email
+    user.hashed_password = request.json['hashed_password'] if 'hashed_password' in request.json \
+        else user.hashed_password
     session.commit()
     return jsonify({'success': 'OK'})
