@@ -3,6 +3,7 @@ from data import db_session
 from data.jobs import Jobs
 from data.users import User
 from data.departments import Department
+import users_api
 import jobs_api
 from jobform import JobsForm
 from departamenform import DepartamentsForm
@@ -18,6 +19,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 def main():
     db_session.global_init("db/mars.sqlite")
+    app.register_blueprint(users_api.blueprint)
     app.register_blueprint(jobs_api.blueprint)
     app.run()
 
