@@ -58,3 +58,14 @@ def create_users():
     session.add(user)
     session.commit()
     return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/users/<int:users_id>', methods=['DELETE'])
+def delete_news(users_id):
+    session = db_session.create_session()
+    user = session.query(User).get(users_id)
+    if not user:
+        return jsonify({'error': 'Not found'})
+    session.delete(user)
+    session.commit()
+    return jsonify({'success': 'OK'})
