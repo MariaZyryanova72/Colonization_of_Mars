@@ -13,7 +13,7 @@ def get_users():
     return jsonify(
         {
             'user':
-                [user.to_dict(only=('surname', 'name', 'age',
+                [user.to_dict(only=('surname', 'name', 'age', 'city_from',
                                     'position', 'speciality', 'address',
                                     'email', 'hashed_password', 'modified_date'))
                  for user in users]
@@ -29,7 +29,7 @@ def get_one_users(users_id):
         return jsonify({'error': 'Not found'})
     return jsonify(
         {
-            'user': user.to_dict(only=('surname', 'name', 'age',
+            'user': user.to_dict(only=('surname', 'name', 'age', 'city_from',
                                        'position', 'speciality', 'address',
                                        'email', 'hashed_password', 'modified_date'))
         }
@@ -47,6 +47,7 @@ def create_users():
         surname=request.json['surname'] if 'surname' in request.json else None,
         name=request.json['name'],
         age=request.json['age'] if 'age' in request.json else None,
+        city_from=request.json['city_from'],
         position=request.json['position'] if 'position' in request.json else None,
         speciality=request.json['speciality'] if 'speciality' in request.json else None,
         address=request.json['address'] if 'address' in request.json else None,
@@ -78,6 +79,7 @@ def edit_users(users_id):
     user.surname = request.json['surname'] if 'surname' in request.json else user.surname
     user.name = request.json['name'] if 'name' in request.json else user.name
     user.age = request.json['age'] if 'age' in request.json else user.age
+    user.city_from = request.json['city_from'] if 'city_from' in request.json else user.city_from
     user.position = request.json['position'] if 'position' in request.json else user.position
     user.speciality = request.json['speciality'] if 'speciality' in request.json else user.speciality
     user.address = request.json['address'] if 'address' in request.json else user.address

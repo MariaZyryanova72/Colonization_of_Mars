@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, render_template, redirect, request, abort, make_response, jsonify
 from data import db_session
 from data.jobs import Jobs
@@ -29,12 +30,13 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-def add_user_func(name, surname=None, age=None, position=None, speciality=None,
+def add_user_func(name, city_from, surname=None, age=None, position=None, speciality=None,
                   address=None, email=None, hashed_password=None):
     new_user = User()
     new_user.surname = surname
     new_user.name = name
     new_user.age = age
+    new_user.city_from = city_from
     new_user.position = position
     new_user.speciality = speciality
     new_user.address = address
@@ -77,13 +79,13 @@ def departament_list():
 @app.route("/add_user")
 def add_user():
     add_user_func(surname="Scott", name="Ridley", age=21, position="captain",
-                  speciality="research engineer", address="module_1", email="scott_chief@mars.org")
+                  speciality="research engineer", address="module_1", email="scott_chief@mars.org", city_from="Тюмень")
     add_user_func(surname="Maria", name="Zyryanova", age=15, position="coder",
-                  speciality="engineer", address="module_1", email="m@x@_progy@mars.org")
+                  speciality="engineer", address="module_1", email="m@x@_progy@mars.org", city_from="Санкт-Петербург")
     add_user_func(surname="Alex", name="Zyryanov", age=40, position="develop",
-                  speciality="develop engineer", address="module_4", email="alex@mars.org")
+                  speciality="develop engineer", address="module_4", email="alex@mars.org", city_from="Москва")
     add_user_func(surname="Yulia", name="Zyryanova", age=18, position="medic",
-                  speciality="врач", address="module_3", email="yuila@mars.org")
+                  speciality="врач", address="module_3", email="yuila@mars.org", city_from="Тюмень")
     return "4 пользователя добавлены в базу данных"
 
 
@@ -105,6 +107,7 @@ def reqister():
             email=form.login.data,
             position=form.position.data,
             age=form.age.data,
+            city_from=form.city_from.data,
             surname=form.surname.data,
             speciality=form.speciality.data,
             address=form.address.data,
@@ -297,12 +300,49 @@ def add_departament():
         departament.chief = form.chief.data
         departament.members = form.members.data
         departament.email = form.email.data
-        current_user.jobs.append(departament)
+        current_user.user_department.append(departament)
         session.merge(current_user)
         session.commit()
         return redirect('/departament')
     return render_template('departament.html', title='Add Departament',
                            form=form)
+
+
+@app.route('/users_show/<int:user_id>',  methods=['GET', 'POST'])
+def users_show(user_id):
+    response = requests.get("http://127.0.0.1:5000/api/users")
+    if response:
+        json_response = response.json()
+        user = json_response["user"][user_id - 1]
+        user_name = user["name"]
+        user_surname = user["surname"]
+        user_city = user["city_from"]
+        geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+        geocoder_params = {
+            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+            "geocode": user_city,
+            "format": "json"}
+        response = requests.get(geocoder_api_server, params=geocoder_params)
+        if not response:
+            pass
+
+        json_response = response.json()
+        toponym = json_response["response"]["GeoObjectCollection"][
+            "featureMember"][0]["GeoObject"]
+        longitude, lattitude = toponym["Point"]["pos"].split(" ")
+
+        # Собираем параметры для запроса к StaticMapsAPI:
+        map_params = {
+            "ll": ",".join([longitude, lattitude]),
+            "l": "sat",
+            "spn": "0.05,0.05",
+        }
+
+        map_api_server = "http://static-maps.yandex.ru/1.x/"
+        response = requests.get(map_api_server, params=map_params)
+
+        return render_template('city_from.html', image=response.url,
+                               name=user_name, surname=user_surname, city=user_city)
 
 
 if __name__ == '__main__':
