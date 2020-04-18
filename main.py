@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, render_template, redirect, request, abort, make_response, jsonify
 from data import db_session
 from data.jobs import Jobs
@@ -305,6 +306,43 @@ def add_departament():
         return redirect('/departament')
     return render_template('departament.html', title='Add Departament',
                            form=form)
+
+
+@app.route('/users_show/<int:user_id>',  methods=['GET', 'POST'])
+def users_show(user_id):
+    response = requests.get("http://127.0.0.1:5000/api/users")
+    if response:
+        json_response = response.json()
+        user = json_response["user"][user_id - 1]
+        user_name = user["name"]
+        user_surname = user["surname"]
+        user_city = user["city_from"]
+        geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+        geocoder_params = {
+            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+            "geocode": user_city,
+            "format": "json"}
+        response = requests.get(geocoder_api_server, params=geocoder_params)
+        if not response:
+            pass
+
+        json_response = response.json()
+        toponym = json_response["response"]["GeoObjectCollection"][
+            "featureMember"][0]["GeoObject"]
+        longitude, lattitude = toponym["Point"]["pos"].split(" ")
+
+        # Собираем параметры для запроса к StaticMapsAPI:
+        map_params = {
+            "ll": ",".join([longitude, lattitude]),
+            "l": "sat",
+            "spn": "0.05,0.05",
+        }
+
+        map_api_server = "http://static-maps.yandex.ru/1.x/"
+        response = requests.get(map_api_server, params=map_params)
+
+        return render_template('city_from.html', image=response.url,
+                               name=user_name, surname=user_surname, city=user_city)
 
 
 if __name__ == '__main__':
