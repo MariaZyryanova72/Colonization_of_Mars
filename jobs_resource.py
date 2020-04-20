@@ -9,7 +9,6 @@ parser.add_argument('job', required=True)
 parser.add_argument('work_size', required=True, type=int)
 parser.add_argument('collaborators', required=True, type=str)
 parser.add_argument('is_finished', required=True, type=bool)
-parser.add_argument('user', required=True, type=bool)
 
 
 def abort_if_jobs_not_found(job_id):
@@ -25,7 +24,7 @@ class JobsResource(Resource):
         session = db_session.create_session()
         jobs = session.query(Jobs).get(job_id)
         return jsonify({'jobs': jobs.to_dict(
-            only=('team_leader', 'job', 'work_size', 'collaborators', 'is_finished', 'user.name'))})
+            only=('team_leader', 'job', 'work_size', 'collaborators', 'is_finished', 'team_leader.name'))})
 
     def delete(self, job_id):
         abort_if_jobs_not_found(job_id)
@@ -41,7 +40,7 @@ class JobsListResource(Resource):
         session = db_session.create_session()
         jobs = session.query(Jobs).all()
         return jsonify({'jobs': [item.to_dict(
-            only=('team_leader', 'job', 'work_size', 'collaborators', 'is_finished', 'user.name')) for item in jobs]})
+            only=('team_leader', 'job', 'work_size', 'collaborators', 'is_finished', 'team_leader.name')) for item in jobs]})
 
     def post(self):
         args = parser.parse_args()
