@@ -1,18 +1,27 @@
 import requests
+from flask_restful import Api
+
 from flask import Flask, render_template, redirect, request, abort, make_response, jsonify
+from flask_restful import Api
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
 from data.departments import Department
+
 import users_api
 import jobs_api
+import users_resource
+
 from jobform import JobsForm
 from departamenform import DepartamentsForm
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from loginform import LoginForm
 from registerform import RegisterForm
+import  jobs_resource
 
 app = Flask(__name__)
+api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -20,6 +29,10 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 def main():
     db_session.global_init("db/mars.sqlite")
+    api.add_resource(jobs_resource.JobsListResource, '/api/v2/jobs')
+    api.add_resource(jobs_resource.JobsResource, '/api/v2/jobs/<int:job_id>')
+    api.add_resource(users_resource.UsersListResource, '/api/v2/users')
+    api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
     app.register_blueprint(users_api.blueprint)
     app.register_blueprint(jobs_api.blueprint)
     app.run()
