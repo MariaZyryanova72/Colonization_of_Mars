@@ -14,14 +14,14 @@
     <nav class="navbar navbar-light bg-light">
         <h4 class="style">Миссия Колонизация Марса
             <br>И на Марсе будут яблони цвести!</h4>
-        {% if current_user.is_authenticated %}
-            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-        {% else %}
-            <p>
-                <a class="btn btn-danger" href="/register">Зарегистрироваться</a>
-                <a class="btn btn-info" href="/login">Войти</a>
-            </p>
-        {% endif %}
+            {% if current_user.is_authenticated %}
+                <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+            {% else %}
+                <p>
+                    <a class="btn btn-danger" href="/register">Зарегистрироваться</a>
+                    <a class="btn btn-info" href="/login">Войти</a>
+                </p>
+            {% endif %}
     </nav>
 </header>
 <main role="main" class="container">

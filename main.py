@@ -18,7 +18,7 @@ from jobform import JobsForm
 from departamenform import DepartamentsForm
 from loginform import LoginForm
 from registerform import RegisterForm
-import  jobs_resource
+import jobs_resource
 
 app = Flask(__name__)
 api = Api(app)
@@ -151,6 +151,7 @@ def add_jobs():
         jobs.work_size = form.work_size.data
         jobs.collaborators = form.collaborators.data
         jobs.is_finished = form.is_finished.data
+        jobs.hazard_category = form.hazard_category.data
         current_user.jobs.append(jobs)
         session.merge(current_user)
         session.commit()
@@ -197,6 +198,7 @@ def edit_jobs(id):
                 form.work_size.data = jobs.work_size
                 form.collaborators.data = jobs.collaborators
                 form.is_finished.data = jobs.is_finished
+                form.hazard_category.data = jobs.hazard_category
             else:
                 return "Вы не капитан и не создатель, значит не имеете доступ к работе"
         else:
@@ -213,6 +215,8 @@ def edit_jobs(id):
                 jobs.work_size = form.work_size.data
                 jobs.collaborators = form.collaborators.data
                 jobs.is_finished = form.is_finished.data
+                form.hazard_category = jobs.hazard_category.data
+
                 session.commit()
                 return redirect('/')
             else:

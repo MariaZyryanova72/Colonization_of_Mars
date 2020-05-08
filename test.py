@@ -14,7 +14,7 @@ print(post('http://127.0.0.1:5000/api/v2/jobs',
                  'team_leader': 1, 'work_size': 10, 'collaborators': "1, 2",
                  'is_finished': False}).json())
 print(post('http://127.0.0.1:5000/api/v2/jobs',
-           json={'team_leader': 1,
+           json={'team_leader': 1}))
 print(get('http://127.0.0.1:5000/api/v2/users').json())
 print(get('http://127.0.0.1:5000/api/v2/users/1').json())
 print(get('http://127.0.0.1:5000/api/v2/users/999').json())
